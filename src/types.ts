@@ -1,17 +1,22 @@
-export enum DrinkCategory {
-  ALL = '全部',
-  MILK_TEA = '奶茶系',
-  TEA = '原茶系',
-  CHEWY = '咀嚼控',
+export interface DrinkItem {
+  name: string;
+  description: string;
+  best_ratio: string;
+  calories: 'Low' | 'Medium' | 'High';
+  price_range: '$' | '$$' | '$$$';
 }
 
-export interface DrinkRecommendation {
-  id: string;
+export interface CategoryGroup {
+  category: string;
+  items: DrinkItem[];
+}
+
+export interface ShopInfo {
   name: string;
-  shop: string;
-  category: DrinkCategory;
-  reason: string;
-  goldenRatio: string;
-  calorieLevel: 1 | 2 | 3; // 1: Low, 2: Medium, 3: High
-  priceRange: string;
+  slogan: string;
+}
+
+export interface DrinkResponse {
+  shop_info: ShopInfo;
+  recommendations: CategoryGroup[];
 }

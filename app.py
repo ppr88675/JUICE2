@@ -76,21 +76,18 @@ import os
 # --- 3. 側邊欄設定 ---
 with st.sidebar:
     st.markdown("### 🛠️ API 設定")
-    # 優先從環境變數讀取，若無則要求使用者輸入
-    env_api_key = os.environ.get('GEMINI_API_KEY')
-    user_api_key = st.text_input("輸入 Gemini API Key", type="password", placeholder="若環境變數已設定則可留空")
-    
-    # 決定最終使用的 API Key
-    api_key = user_api_key if user_api_key else env_api_key
+    # 只使用介面輸入的方式獲取 API Key
+    api_key = st.text_input("輸入 Gemini API Key", type="password", placeholder="請在此貼上您的 API Key")
     
     if api_key:
         genai.configure(api_key=api_key)
+        st.success("✅ API Key 已設定")
     else:
-        st.warning("⚠️ 尚未偵測到 API Key，請在下方輸入或設定環境變數。")
+        st.warning("⚠️ 請先在此輸入 API Key 才能開始推薦。")
     
     st.info("💡 提示：您可以到 [Google AI Studio](https://aistudio.google.com/app/apikey) 免費申請 API Key。")
     st.divider()
-    st.caption("v2.0 - 視覺升級版")
+    st.caption("v2.1 - 介面輸入版")
 
 # --- 4. 系統指令 ---
 SYSTEM_PROMPT = """

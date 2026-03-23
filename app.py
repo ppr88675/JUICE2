@@ -74,43 +74,50 @@ st.markdown("""
 import os
 
 # --- 3. API 設定邏輯 ---
-# 優先嘗試從 Streamlit Secrets 或環境變數讀取
-# 這可以讓您在 Streamlit Cloud 的 Settings -> Secrets 設定後，使用者就看不到輸入框
 def get_api_key():
-    # 1. 嘗試從 Streamlit Secrets 讀取 (Streamlit Cloud 專用)
-    if "GEMINI_API_KEY" in st.secrets:
-        return st.secrets["GEMINI_API_KEY"]
-    # 2. 嘗試從環境變數讀取
+    # 1. 優先嘗試從 Streamlit Secrets 讀取 (Streamlit Cloud 專用)
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            return st.secrets["GEMINI_API_KEY"]
+    except:
+        pass
+    
+    # 2. 嘗試從系統環境變數讀取 (AI Studio 預覽或本地測試)
     return os.environ.get('GEMINI_API_KEY')
 
-env_api_key = get_api_key()
+# 取得金鑰
+active_api_key = get_api_key()
 
 with st.sidebar:
     st.markdown("### 🛠️ 系統設定")
     
-    if env_api_key:
-        # 如果後台有設定，就直接使用，並隱藏輸入框
-        api_key = env_api_key
+    if active_api_key:
+        # --- 模式 A：已偵測到後台金鑰 ---
+        api_key = active_api_key
         st.success("✅ 系統金鑰已就緒")
-        st.caption("目前正使用管理員預設金鑰提供服務。")
+        st.caption("目前正使用管理員預設金鑰。")
         
-        # 提供一個隱藏的切換開關，萬一管理員想換 key 測試才用得到
-        if st.checkbox("使用其他 API Key"):
-            custom_key = st.text_input("輸入自定義 API Key", type="password")
-            if custom_key:
-                api_key = custom_key
+        # 只有勾選時才顯示輸入框 (給管理員測試用)
+        if st.checkbox("更換測試金鑰"):
+            test_key = st.text_input("輸入測試用 API Key", type="password")
+            if test_key:
+                api_key = test_key
     else:
-        # 如果後台沒設定，才顯示輸入框給使用者
+        # --- 模式 B：未偵測到金鑰 (顯示輸入框) ---
         api_key = st.text_input("輸入 Gemini API Key", type="password", placeholder="請在此貼上您的 API Key")
         if not api_key:
-            st.warning("⚠️ 請先輸入 API Key 才能開始推薦。")
-            st.info("💡 提示：管理員可以在 Streamlit Cloud 的 Settings -> Secrets 中設定 `GEMINI_API_KEY` 來隱藏此輸入框。")
-    
+            st.warning("⚠️ 請輸入 API Key 以啟用功能")
+            st.info("💡 管理員提示：請至 Streamlit Cloud Secrets 設定 `GEMINI_API_KEY` 以隱藏此框。")
+
+    # 配置 Gemini
     if api_key:
-        genai.configure(api_key=api_key)
+        try:
+            genai.configure(api_key=api_key)
+        except Exception as e:
+            st.error(f"金鑰配置失敗: {e}")
     
     st.divider()
-    st.caption("v2.3 - Streamlit Cloud 優化版")
+    st.caption("v2.4 - 介面精簡版")
 
 # --- 4. 系統指令 ---
 SYSTEM_PROMPT = """

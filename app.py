@@ -97,6 +97,12 @@ SYSTEM_PROMPT = """
 請嚴格按照以下 JSON 格式輸出：
 {
   "shop_name": "店家名稱",
+  "official_links": [
+    {
+      "title": "連結名稱（如：官方網站、FB 粉絲專頁、線上菜單）",
+      "url": "網址"
+    }
+  ],
   "recommendations": [
     {
       "name": "品名",
@@ -143,7 +149,7 @@ if st.button("✨ 開始神推薦"):
                     SYSTEM_PROMPT,
                     f"使用者想喝的店：{shop_name}",
                     f"目前心情：{mood}",
-                    "請根據以上資訊提供推薦。"
+                    "請提供推薦品項，並盡可能找到該店的官方網站或線上菜單連結。"
                 ]
                 
                 if uploaded_file:
@@ -162,8 +168,26 @@ if st.button("✨ 開始神推薦"):
                 # 顯示推薦結果
                 st.balloons()
                 display_name = data.get('shop_name', shop_name)
+                
+                # 標題與連結佈局
                 st.markdown(f"### 📍 {display_name} 必喝清單")
                 
+                # 新增：查看完整菜單區塊
+                links = data.get('official_links', [])
+                link_cols = st.columns(len(links) + 1 if links else 1)
+                
+                if links:
+                    for i, link in enumerate(links):
+                        with link_cols[i]:
+                            st.link_button(f"🌐 {link['title']}", link['url'], use_container_width=True)
+                
+                # 永遠提供一個 Google 搜尋連結作為備案
+                with link_cols[-1]:
+                    search_url = f"https://www.google.com/search?q={display_name}+菜單+官網"
+                    st.link_button("🔍 在 Google 搜尋菜單", search_url, use_container_width=True)
+                
+                st.write("---")
+
                 recommendations = data.get('recommendations', [])
                 if not recommendations:
                     st.warning("AI 暫時找不到適合的推薦，請換個店名試試！")

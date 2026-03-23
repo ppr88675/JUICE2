@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-tea-beige: #F5F5DC;
+  --color-tea-green: #D0F0C0;
+  --color-tea-dark: #4F7942;
+  --color-tea-accent: #8F9779;
+}
+
+body {
+  background-color: var(--color-tea-beige);
+  color: #333;
+}

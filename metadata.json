@@ -1,0 +1,5 @@
+{
+  "name": "TeaTime - 手搖飲推薦專家",
+  "description": "使用 AI 為您推薦最適合的手搖飲，包含黃金比例與熱量資訊。",
+  "requestFramePermissions": []
+}

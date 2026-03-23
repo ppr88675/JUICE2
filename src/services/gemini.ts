@@ -11,7 +11,7 @@ const SYSTEM_PROMPT = `你是一個精通台灣所有手搖飲品牌的專家。
 
 export async function getDrinkRecommendations(shopName: string): Promise<DrinkResponse | null> {
   const response = await genAI.models.generateContent({
-    model: "gemini-1.5-flash",
+    model: "gemini-3-flash-preview",
     contents: `請推薦 ${shopName} 的 10 個品項`,
     config: {
       systemInstruction: SYSTEM_PROMPT,

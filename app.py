@@ -19,7 +19,7 @@ SYSTEM_PROMPT = """
 請只輸出 JSON 格式，不要有額外對話。
 """
 
-model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SYSTEM_PROMPT)
+model = genai.GenerativeModel('gemini-3-flash-preview', system_instruction=SYSTEM_PROMPT)
 
 # --- 2. 網頁介面 ---
 st.title("🧋 台灣手搖飲達人")

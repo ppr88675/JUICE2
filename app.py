@@ -73,21 +73,44 @@ st.markdown("""
 
 import os
 
-# --- 3. 側邊欄設定 ---
+# --- 3. API 設定邏輯 ---
+# 優先嘗試從 Streamlit Secrets 或環境變數讀取
+# 這可以讓您在 Streamlit Cloud 的 Settings -> Secrets 設定後，使用者就看不到輸入框
+def get_api_key():
+    # 1. 嘗試從 Streamlit Secrets 讀取 (Streamlit Cloud 專用)
+    if "GEMINI_API_KEY" in st.secrets:
+        return st.secrets["GEMINI_API_KEY"]
+    # 2. 嘗試從環境變數讀取
+    return os.environ.get('GEMINI_API_KEY')
+
+env_api_key = get_api_key()
+
 with st.sidebar:
-    st.markdown("### 🛠️ API 設定")
-    # 只使用介面輸入的方式獲取 API Key
-    api_key = st.text_input("輸入 Gemini API Key", type="password", placeholder="請在此貼上您的 API Key")
+    st.markdown("### 🛠️ 系統設定")
+    
+    if env_api_key:
+        # 如果後台有設定，就直接使用，並隱藏輸入框
+        api_key = env_api_key
+        st.success("✅ 系統金鑰已就緒")
+        st.caption("目前正使用管理員預設金鑰提供服務。")
+        
+        # 提供一個隱藏的切換開關，萬一管理員想換 key 測試才用得到
+        if st.checkbox("使用其他 API Key"):
+            custom_key = st.text_input("輸入自定義 API Key", type="password")
+            if custom_key:
+                api_key = custom_key
+    else:
+        # 如果後台沒設定，才顯示輸入框給使用者
+        api_key = st.text_input("輸入 Gemini API Key", type="password", placeholder="請在此貼上您的 API Key")
+        if not api_key:
+            st.warning("⚠️ 請先輸入 API Key 才能開始推薦。")
+            st.info("💡 提示：管理員可以在 Streamlit Cloud 的 Settings -> Secrets 中設定 `GEMINI_API_KEY` 來隱藏此輸入框。")
     
     if api_key:
         genai.configure(api_key=api_key)
-        st.success("✅ API Key 已設定")
-    else:
-        st.warning("⚠️ 請先在此輸入 API Key 才能開始推薦。")
     
-    st.info("💡 提示：您可以到 [Google AI Studio](https://aistudio.google.com/app/apikey) 免費申請 API Key。")
     st.divider()
-    st.caption("v2.1 - 介面輸入版")
+    st.caption("v2.3 - Streamlit Cloud 優化版")
 
 # --- 4. 系統指令 ---
 SYSTEM_PROMPT = """
